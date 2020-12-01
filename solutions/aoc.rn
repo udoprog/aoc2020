@@ -1,0 +1,2 @@
+/// Error raised when no solution is available.
+pub struct NoSolution;

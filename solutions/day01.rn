@@ -1,0 +1,67 @@
+use std::string;
+
+mod aoc;
+
+fn part1(v, target) {
+    v.sort_int();
+
+    let a = 0;
+    let b = v.len() - 1;
+
+    while a != b {
+        match v[a] + v[b] {
+            n if n < target => a += 1,
+            n if n > target => b -= 1,
+            _ => return Ok((a, b))
+        }
+    }
+
+    Err(aoc::NoSolution)
+}
+
+fn part2(v, target) {
+    v.sort_int();
+
+    let a = 0;
+    let c = v.len() - 1;
+
+    while a != c {
+        if v[a] + v[c] < target {
+            for c in (a..c).iter().rev() {
+                for b in a + 1..c {
+                    match v[a] + v[b] + v[c] {
+                        n if n < target => (),
+                        n if n > target => break,
+                        _ => return Ok((a, b, c)),
+                    }
+                }
+            }
+
+            a += 1;
+        } else {
+            c -= 1;
+        }
+    }
+
+    Err(aoc::NoSolution)
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day01.txt").await?;
+    let v = [];
+
+    for line in input.split('\n').filter(|l| !l.is_empty()).map(string::parse_int) {
+        v.push(line?);
+    }
+
+    let (a, b) = part1(v, 2020)?;
+    assert_eq!((a, b), (2, 69));
+    assert_eq!(v[a] + v[b], 2020);
+    assert_eq!(v[a] * v[b], 935419);
+
+    let (a, b, c) = part2(v, 2020)?;
+    assert_eq!((a, b, c), (0, 3, 19));
+    assert_eq!(v[a] + v[b] + v[c], 2020);
+    assert_eq!(v[a] * v[b] * v[c], 49880012);
+    Ok(())
+}
