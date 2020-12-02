@@ -26,3 +26,8 @@ cargo run --release --manifest-path ../rune/Cargo.toml --bin rune -- solutions/d
 ```
 
 [Rune project]: https://github.com/rune-rs/rune
+
+## Pull requests caused by this project
+
+* Day 1: https://github.com/rune-rs/rune/pull/181
+* Day 2: https://github.com/rune-rs/rune/pull/187

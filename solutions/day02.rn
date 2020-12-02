@@ -1,0 +1,65 @@
+mod aoc;
+
+struct Policy {
+    c,
+    low,
+    high,
+}
+
+impl Policy {
+    /// Perform the part 1 check on the given password.
+    pub fn part1(self, password) {
+        let Policy {
+            c,
+            low,
+            high,
+        } = self;
+
+        let count = password.chars().filter(|d| d == c).count();
+        low <= count && count <= high
+    }
+
+    /// Perform the part 2 check on the given password.
+    pub fn part2(self, password) {
+        let Policy {
+            c,
+            low,
+            high,
+        } = self;
+
+        let a = password.char_at(low - 1)? == Some(c);
+        let b = password.char_at(high - 1)? == Some(c);
+        Ok(a ^ b)
+    }
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day02.txt").await?;
+    let v = [];
+
+    let inputs = [];
+
+    for line in input.split('\n').filter(|l| !l.is_empty()) {
+        let (prefix, password) = line.split_str(": ").collect_tuple();
+        let (policy, c) = prefix.split(' ').collect_tuple();
+        let c = std::string::parse_char(c)?;
+        let (low, high) = policy.split('-').collect_tuple();
+        let low = std::string::parse_int(low)?;
+        let high = std::string::parse_int(high)?;
+
+        let policy = Policy {
+            c,
+            low,
+            high,
+        };
+
+        inputs.push((policy, password));
+    }
+
+    let part1 = inputs.iter().filter(|p| (p.0).part1(p.1)).count();
+    assert_eq!(part1, 622);
+
+    let part2 = inputs.iter().filter(|p| (p.0).part2(p.1).unwrap()).count();
+    assert_eq!(part2, 263);
+    Ok(())
+}
