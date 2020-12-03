@@ -1,0 +1,65 @@
+mod aoc;
+
+use std::collections::HashMap;
+
+enum Tile {
+    Open,
+    Tree,
+}
+
+fn test_slope(m, dx, dy, w) {
+    let x = dx;
+    let y = dy;
+    let trees = 0;
+
+    while let Some(t) = m.get((x, y)) {
+        if let Tile::Tree = t {
+            trees += 1;
+        }
+
+        y += dy;
+        x = (x + dx) % w;
+    }
+
+    trees
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day03.txt").await?;
+    let v = [];
+
+    let m = HashMap::new();
+    let w = 0;
+
+    for n in input.split('\n').filter(|l| !l.is_empty()).enumerate() {
+        // FIXME: destruct directly in loop.
+        let (y, line) = n;
+
+        for n in line.chars().enumerate() {
+            let (x, c) = n;
+            w = int::max(w, x + 1);
+
+            let tile = match c {
+                '.' => Tile::Open,
+                _ => Tile::Tree,
+            };
+
+            m.insert((x, y), tile);
+        }
+    }
+
+    // Part 1.
+    assert_eq!(test_slope(m, 3, 1, w), 169);
+
+    // Part 2.
+    assert_eq! {
+        [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
+            .iter().map(|d| test_slope(m, d.0, d.1, w)).product(),
+        7560370818
+    };
+
+    // FIXME: this doesn't print the content of the map. Use a debug protocol if
+    // available?
+    // dbg(m);
+    Ok(())
+}
