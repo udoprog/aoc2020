@@ -1,0 +1,84 @@
+use std::collections::{HashMap, HashSet};
+
+mod aoc;
+
+fn range_validator(start, end) {
+    move |v| {
+        let v = std::string::parse_int(v)?;
+        Ok(v >= start && v <= end)
+    }
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day04.txt").await?;
+    let m = HashMap::new();
+
+    let ecls = HashSet::from("amb blu brn gry grn hzl oth".split(' '));
+    let in_range = 59..=79;
+    let cm_range = 150..=193;
+
+    let validators = #{
+        "byr": range_validator(1920, 2002),
+        "iyr": range_validator(2010, 2020),
+        "eyr": range_validator(2020, 2030),
+        "hgt": |v| {
+            let split = v.len() - 2;
+
+            Ok(match v[split..] {
+                "in" => in_range.contains_int(std::string::parse_int(v[..split])?),
+                "cm" => cm_range.contains_int(std::string::parse_int(v[..split])?),
+                _ => false,
+            })
+        },
+        "hcl": |v| {
+            Ok(
+                v.len() == 7 &&
+                    v.starts_with("#") &&
+                    v.chars().skip(1).all(std::char::is_alphanumeric)
+            )
+        },
+        "ecl": |v| Ok(ecls.contains(v)),
+        "pid": |pid| {
+            Ok(pid.len() == 9 && pid.chars().all(std::char::is_numeric))
+        },
+    };
+
+    let required = validators.keys().collect_vec();
+
+    let part1 = 0;
+    let part2 = 0;
+
+    for n in input.split('\n') {
+        if n == "" {
+            if required.iter().all(|req| m.contains_key(req)) {
+                part1 += 1;
+                let all = true;
+
+                for (key, validator) in validators {
+                    let value = m.get(key).unwrap();
+
+                    if validator is not unit && !validator(value)? {
+                        all = false;
+                        break;
+                    }
+                }
+
+                if all {
+                    part2 += 1;
+                }
+            }
+
+            m.clear();
+            continue;
+        }
+
+        for part in n.split(' ') {
+            let (key, value) = part.split(':').collect_tuple();
+            m.insert(key, value);
+        }
+    }
+
+    assert_eq!(part1, 222);
+    assert_eq!(part2, 140);
+    Ok(())
+}
