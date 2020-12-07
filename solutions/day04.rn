@@ -57,9 +57,7 @@ pub async fn main() {
                 let all = true;
 
                 for (key, validator) in validators {
-                    let value = m.get(key).unwrap();
-
-                    if validator is not unit && !validator(value)? {
+                    if validator is not unit && !validator(m[key])? {
                         all = false;
                         break;
                     }
