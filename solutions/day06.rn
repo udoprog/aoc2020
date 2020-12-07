@@ -1,0 +1,44 @@
+use std::collections::HashSet;
+
+fn groups(input) {
+    let members = [];
+
+    for line in input.split('\n') {
+        if line == "" {
+            yield members;
+            members = [];
+            continue;
+        }
+
+        members.push(HashSet::from(line.chars()));
+    }
+
+    yield members;
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day06.txt").await?;
+
+    let everyone = HashSet::new();
+    let anyone = HashSet::new();
+    let part1 = 0;
+    let part2 = 0;
+
+    for group in groups(input) {
+        if let Some(first) = group.iter().next() {
+            everyone.extend(first);
+        }
+
+        for m in group {
+            anyone.extend(m);
+            everyone = HashSet::from(everyone.intersection(m));
+        }
+
+        part2 += everyone.len();
+        part1 += anyone.len();
+        anyone.clear();
+    }
+
+    assert_eq!(part1, 6565);
+    assert_eq!(part2, 3137);
+}
