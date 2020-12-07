@@ -1,0 +1,71 @@
+use std::string::parse_int;
+use std::collections::{HashSet, HashMap};
+
+fn split_amount(container) {
+    let it = container.split(' ');
+    let n = parse_int(it.next()?).ok()?;
+    let kind = it.next()?;
+    let color = it.next()?;
+    Some((n, (kind, color)))
+}
+
+fn groups(input) {
+    for line in input.split('\n') {
+        let (container, contains) = line.split(" bags contain ").collect_tuple();
+        let container = container.split(' ').collect_tuple();
+        let contains = contains[..contains.len() - 1].split(", ").flat_map(split_amount).collect_vec();
+        yield (container, contains);
+    }
+}
+
+fn part1(m, q, visited) {
+    if let Some(set) = m.get(q) {
+        for (_, e) in set {
+            if visited.insert(e) {
+                part1(m, e, visited);
+            }
+        }
+    }
+}
+
+fn part2(m, q, c) {
+    if let Some(contains) = m.get(q) {
+        for (n, bag) in contains {
+            c += n * part2(m, bag, 1);
+        }
+    }
+
+    c
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day07.txt").await?;
+
+    let rev = HashMap::new();
+    let fwd = HashMap::new();
+
+    for (container, contains) in groups(input) {
+        for (n, bag) in contains {
+            let set = if let Some(set) = rev.get(bag) {
+                set
+            } else {
+                let set = HashSet::new();
+                rev[bag] = set;
+                set
+            };
+
+            set.insert((n, container));
+        }
+
+        fwd.insert(container, contains);
+    }
+
+    // Part 1
+    let visited = HashSet::new();
+    part1(rev, ("shiny", "gold"), visited);
+    assert_eq!(visited.len(), 332);
+
+    let visited = HashSet::new();
+    assert_eq!(part2(fwd, ("shiny", "gold"), 0), 0);
+    assert_eq!(visited.len(), 10875);
+}
