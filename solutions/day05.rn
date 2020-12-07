@@ -1,0 +1,51 @@
+use std::collections::HashSet;
+
+/// Find the seat by checking if all neighbours exist.
+fn find_seat(iter, ids) {
+    for id in iter {
+        if ids.contains(id - 1) && ids.contains(id + 1) {
+            return Some(id);
+        }
+    }
+
+    None
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day05.txt").await?;
+
+    let largest_id = 0;
+    let ids = HashSet::new();
+
+    for line in input.split('\n') {
+        let (low, high) = (0, 128);
+        let (left, right) = (0, 8);
+
+        for c in line.chars() {
+            match c {
+                'F' => {
+                    high -= (high - low) / 2;
+                }
+                'B' => {
+                    low += (high - low) / 2;
+                }
+                'L' => {
+                    right -= (right - left) / 2;
+                }
+                'R' => {
+                    left += (right - left) / 2;
+                }
+                _ => panic!("unsupported direction {:?}", c),
+            }
+        }
+
+        let id = low * 8 + left;
+        ids.insert(id);
+        largest_id = int::max(largest_id, id);
+    }
+
+    let iter = HashSet::from(0..=largest_id).difference(ids).peekable();
+
+    assert_eq!(largest_id, 835);
+    assert_eq!(find_seat(iter, ids), Some(649));
+}
