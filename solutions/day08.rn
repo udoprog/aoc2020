@@ -1,0 +1,84 @@
+use std::string::parse_int;
+use std::collections::{HashSet, HashMap};
+
+enum Inst {
+    Nop(arg),
+    Acc(arg),
+    Jmp(arg),
+}
+
+struct Program {
+    inst,
+    ip,
+    acc,
+}
+
+impl Program {
+    // Clone the program.
+    fn clone(self) {
+        Program {
+            inst: self.inst,
+            ip: self.ip,
+            acc: self.acc,
+        }
+    }
+
+    /// Only run any given instruction once.
+    fn dedup(self) {
+        let dedup = HashSet::new();
+
+        while let Some(inst) = self.inst.get(self.ip) {
+            if !dedup.insert(self.ip) {
+                break;
+            }
+
+            match inst {
+                Inst::Nop(arg) => {
+                }
+                Inst::Acc(arg) => {
+                    self.acc += arg;
+                }
+                Inst::Jmp(arg) => {
+                    self.ip += arg;
+                    continue;
+                }
+            }
+
+            self.ip += 1;
+        }
+    }
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day08.txt").await?;
+
+    let program = [];
+
+    for line in input.split('\n') {
+        if line.is_empty() {
+            continue;
+        }
+
+        let (inst, arg) = line.split(' ').collect_tuple();
+        let arg = std::string::parse_int(arg)?;
+
+        program.push(match inst {
+            "nop" => Inst::Nop(arg),
+            "acc" => Inst::Acc(arg),
+            "jmp" => Inst::Jmp(arg),
+            inst => panic!("unsupported inst: `{}`", inst),
+        });
+    }
+
+    let program = Program {
+        inst: program,
+        ip: 0,
+        acc: 0,
+    };
+
+    let part1 = program.clone();
+    part1.dedup();
+    assert_eq!(part1.acc, 1563);
+
+    Ok(())
+}
