@@ -1,0 +1,146 @@
+struct Ship {
+    pos,
+    facing
+}
+
+enum Dir {
+    North,
+    East,
+    South,
+    West,
+}
+
+impl Dir {
+    fn left(self) {
+        match self {
+            Self::North => Self::West,
+            Self::East => Self::North,
+            Self::South => Self::East,
+            Self::West => Self::South,
+        }
+    }
+
+    fn right(self) {
+        match self {
+            Self::North => Self::East,
+            Self::East => Self::South,
+            Self::South => Self::West,
+            Self::West => Self::North,
+        }
+    }
+
+    fn delta(self) {
+        match self {
+            Self::North => (1, 0),
+            Self::East => (0, 1),
+            Self::South => (-1, 0),
+            Self::West => (0, -1),
+        }
+    }
+}
+
+fn part1(input) {
+    let ship = Ship {
+        pos: (0, 0),
+        facing: Dir::East,
+    };
+
+    for line in input {
+        let delta = std::string::parse_int(line[1..])?;
+
+        let dir = match line.char_at(0)? {
+            'F' => ship.facing,
+            'N' => Dir::North,
+            'E' => Dir::East,
+            'S' => Dir::South,
+            'W' => Dir::West,
+            'R' => {
+                for _ in 0..delta / 90 {
+                    ship.facing = ship.facing.right();
+                }
+
+                continue;
+            }
+            'L' => {
+                for _ in 0..delta / 90 {
+                    ship.facing = ship.facing.left();
+                }
+
+                continue;
+            }
+            c => {
+                panic!("unsupported dir `{}`", c);
+            }
+        };
+
+        let (dx, dy) = dir.delta();
+        ship.pos.0 += dx * delta;
+        ship.pos.1 += dy * delta;
+    }
+    
+    Ok(ship.pos.0.abs() + ship.pos.1.abs())
+}
+
+fn part2(input) {
+    let ship = (0, 0);
+    let wp = (1, 10);
+    
+    println!("ship{:?}, wp{:?}", ship, wp);
+
+    for line in input {
+        let delta = std::string::parse_int(line[1..])?;
+
+        let dir = match line.char_at(0)? {
+            'F' => {
+                ship.0 += wp.0 * delta;
+                ship.1 += wp.1 * delta;
+                continue;
+            }
+            'N' => Dir::North,
+            'E' => Dir::East,
+            'S' => Dir::South,
+            'W' => Dir::West,
+            'R' => {
+                // rotation matrix
+                let (ry, rx) = match delta {
+                    90 => ((0, -1), (1, 0)),
+                    180 => ((-1, 0), (0, -1)),
+                    270 => ((0, 1), (-1, 0)),
+                    r => panic!("unsupported rotation `{}`", r),
+                };
+
+                wp = (wp.0 * ry.0 + wp.1 * ry.1, wp.0 * rx.0 + wp.1 * rx.1);
+                continue;
+            }
+            'L' => {
+                // rotation matrix
+                let (ry, rx) = match delta {
+                    90 => ((0, 1), (-1, 0)),
+                    180 => ((-1, 0), (0, -1)),
+                    270 => ((0, -1), (1, 0)),
+                    r => panic!("unsupported rotation `{}`", r),
+                };
+
+                wp = (wp.0 * ry.0 + wp.1 * ry.1, wp.0 * rx.0 + wp.1 * rx.1);
+                continue;
+            }
+            c => {
+                panic!("unsupported dir `{}`", c);
+            }
+        };
+
+        let (dy, dx) = dir.delta();
+        wp.0 += dy * delta;
+        wp.1 += dx * delta;
+    }
+
+    Ok(ship.0.abs() + ship.1.abs())
+}
+
+pub async fn main() {
+    let input = fs::read_to_string("inputs/day12.txt").await?;
+    let input = input.split('\n').filter(|l| !l.is_empty()).collect_vec();
+    assert_eq!(part1(input)?, 636);
+    assert_eq!(part2(input)?, 26841);
+    Ok(())
+}

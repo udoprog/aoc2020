@@ -37,3 +37,4 @@ cargo run --release --manifest-path ../rune/Cargo.toml --bin rune -- solutions/d
 * Day 6: https://github.com/rune-rs/rune/pull/204
 * Day 7: https://github.com/rune-rs/rune/pull/205
 * Day 8, Part 1: https://github.com/rune-rs/rune/pull/216
+* Day 12: https://github.com/rune-rs/rune/pull/217
